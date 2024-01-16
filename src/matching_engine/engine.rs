@@ -33,6 +33,15 @@ impl MatchingEngine {
         }
     }
 
+    pub fn show_orderbook_state(&self) {
+        // Iterate through all trading pairs in the orderbooks hashmap
+        for (pair, orderbook) in &self.orderbooks {
+            // Print the trading pair
+            println!("\n Trading Pair: {:?}", pair);
+            println!("Orderbook State: {:?}\n", orderbook);
+        }
+    }
+
     pub fn add_new_market(&mut self, pair: TradingPair) {
         self.orderbooks.insert(pair.clone(), Orderbook::new());
 
@@ -50,6 +59,26 @@ impl MatchingEngine {
                 orderbook.add_limit_order(price, order);
 
                 println!("placed limit order at price level {}", price);
+
+                Ok(())
+            }
+            None => Err(format!(
+                "the orderbook for the given trading pair ({}) does not exist",
+                pair.to_string()
+            )),
+        }
+    }
+
+    pub fn place_market_order(
+        &mut self,
+        pair: TradingPair,
+        order: & mut Order,
+    ) -> Result<(), String> {
+        match self.orderbooks.get_mut(&pair) {
+            Some(orderbook) => {
+                orderbook.fill_market_order(order);
+
+                println!("placed market order at price level");
 
                 Ok(())
             }
