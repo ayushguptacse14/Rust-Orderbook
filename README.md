@@ -8,10 +8,10 @@ To install and set up this project, ensure you have Rust installed on your syste
 
 ```bash
 # Clone the repository
-git clone [repository-url]
+git clone https://github.com/ayushguptacse14/Rust-Orderbook.git
 
 # Navigate to the project directory
-cd [project-directory]
+cd Rust-Orderbook
 
 # Build the project
 cargo build
