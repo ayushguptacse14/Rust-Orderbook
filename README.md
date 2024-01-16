@@ -20,6 +20,11 @@ cargo build
 ## Usage
 To use the application, start by initializing the matching engine and order book. Then, create a trading pair, such as BTC to USD, and process orders through the engine.
 
+```bash
+# Run the project
+cargo run
+```
+
 ```rust
 // Initialize the matching engine
 let mut engine = MatchingEngine::new();
