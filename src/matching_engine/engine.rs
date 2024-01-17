@@ -69,6 +69,27 @@ impl MatchingEngine {
         }
     }
 
+    pub fn delete_limit_order(
+        &mut self,
+        pair: TradingPair,
+        price: Decimal,
+        order_id: u64,
+    ) -> Result<(), String> {
+        match self.orderbooks.get_mut(&pair) {
+            Some(orderbook) => {
+                orderbook.delete_limit_order(price, order_id);
+
+                println!("deleted limit order at order id {} & price level {}", order_id, price);
+
+                Ok(())
+            }
+            None => Err(format!(
+                "the orderbook for the given trading pair ({}) does not exist",
+                pair.to_string()
+            )),
+        }
+    }
+
     pub fn place_market_order(
         &mut self,
         pair: TradingPair,

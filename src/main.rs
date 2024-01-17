@@ -22,10 +22,10 @@ fn main() {
     engine.show_orderbook_state();
 
     // Place a limit order using the matching engine
-    let buy_order_from_ayush = Order::new(BidOrAsk::Bid, 7.5);
-    let buy_order_from_sameep = Order::new(BidOrAsk::Bid, 20.5);
-    let sell_order_from_ayush = Order::new(BidOrAsk::Ask, 5.0);
-    let sell_order_from_sameep = Order::new(BidOrAsk::Bid, 22.5);
+    let buy_order_from_ayush = Order::new(1, BidOrAsk::Bid, 7.5);
+    let buy_order_from_sameep = Order::new(2, BidOrAsk::Bid, 20.5);
+    let sell_order_from_ayush = Order::new(3, BidOrAsk::Ask, 5.0);
+    let sell_order_from_sameep = Order::new(4, BidOrAsk::Bid, 22.5);
 
     engine.place_limit_order(pair.clone(), dec!(10.0), buy_order_from_ayush).unwrap();
     engine.place_limit_order(pair.clone(), dec!(10.5), buy_order_from_sameep).unwrap();
@@ -35,11 +35,17 @@ fn main() {
     //Show state of Orderbook
     engine.show_orderbook_state();
 
+     // Delete a limit order using the matching engine
+    engine.delete_limit_order(pair.clone(), dec!(10.0), 1).unwrap();
+
+    //Show state of Orderbook
+    engine.show_orderbook_state();
+
     // Demonstrate market order functionality
-    let mut market_buy_order = &mut Order::new(BidOrAsk::Bid, 1.0);
+    let mut market_buy_order = &mut Order::new(5, BidOrAsk::Bid, 1.0);
     engine.place_market_order(pair.clone(), market_buy_order);
 
-    let mut market_sell_order = &mut Order::new(BidOrAsk::Ask, 2.0);
+    let mut market_sell_order = &mut Order::new(6, BidOrAsk::Ask, 2.0);
     engine.place_market_order(pair.clone(), market_sell_order);
 
     //Show state of Orderbook

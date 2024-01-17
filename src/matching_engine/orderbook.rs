@@ -73,6 +73,25 @@ impl Orderbook {
             },
         }
     }
+    pub fn delete_limit_order(&mut self, price: Decimal, order_id: u64) -> bool {
+        let is_deleted_from_bids = self.bids
+            .entry(price)
+            .and_modify(|limit| limit.orders.retain(|order| order.id != order_id))
+            .or_insert_with(|| Limit::new(price))
+            .orders
+            .iter()
+            .any(|order| order.id == order_id);
+
+        let is_deleted_from_asks = self.asks
+            .entry(price)
+            .and_modify(|limit| limit.orders.retain(|order| order.id != order_id))
+            .or_insert_with(|| Limit::new(price))
+            .orders
+            .iter()
+            .any(|order| order.id == order_id);
+
+        is_deleted_from_bids || is_deleted_from_asks
+    }
 }
 
 
@@ -124,13 +143,14 @@ impl Limit {
 
 #[derive(Debug)]
 pub struct Order {
+    id: u64,
     size: f64,
     bid_or_ask: BidOrAsk,
 }
 
 impl Order {
-    pub fn new(bid_or_ask: BidOrAsk, size: f64) -> Order {
-        Order { bid_or_ask, size }
+    pub fn new(id: u64, bid_or_ask: BidOrAsk, size: f64) -> Order {
+        Order { id, bid_or_ask, size }
     }
 
     pub fn is_filled(&self) -> bool {
@@ -145,12 +165,12 @@ pub mod tests {
     #[test]
     fn orderbook_fill_market_order_ask() {
         let mut orderbook= Orderbook::new();
-        orderbook.add_limit_order(dec! (500), Order:: new(BidOrAsk::Ask, 10.0)); 
-        orderbook.add_limit_order(dec! (200), Order:: new(BidOrAsk::Ask, 10.0)); 
-        orderbook.add_limit_order(dec! (100), Order:: new(BidOrAsk::Ask, 10.0));
-        orderbook.add_limit_order(dec! (300), Order:: new(BidOrAsk::Ask, 10.0));
+        orderbook.add_limit_order(dec! (500), Order:: new(100, BidOrAsk::Ask, 10.0)); 
+        orderbook.add_limit_order(dec! (200), Order:: new(101, BidOrAsk::Ask, 10.0)); 
+        orderbook.add_limit_order(dec! (100), Order:: new(102, BidOrAsk::Ask, 10.0));
+        orderbook.add_limit_order(dec! (300), Order:: new(103, BidOrAsk::Ask, 10.0));
 
-        let mut market_order = Order::new(BidOrAsk::Bid, 10.0);
+        let mut market_order = Order::new(104,BidOrAsk::Bid, 10.0);
         orderbook. fill_market_order (&mut market_order);
 
         let ask_limits = orderbook.ask_limits();
@@ -166,8 +186,8 @@ pub mod tests {
     fn limit_total_volume() {
         let price = dec!(10000);
         let mut limit = Limit::new(price);
-        let buy_limit_order_a = Order::new(BidOrAsk::Bid, 100.0);
-        let buy_limit_order_b = Order::new(BidOrAsk::Bid, 100.0);
+        let buy_limit_order_a = Order::new(105, BidOrAsk::Bid, 100.0);
+        let buy_limit_order_b = Order::new(106, BidOrAsk::Bid, 100.0);
 
         limit.add_order(buy_limit_order_a);
         limit.add_order(buy_limit_order_b);
@@ -179,12 +199,12 @@ pub mod tests {
     fn limit_order_multi_fill() {
         let price = dec!(10000);
         let mut limit = Limit::new(price);
-        let buy_limit_order_a = Order::new(BidOrAsk::Bid, 100.0);
-        let buy_limit_order_b = Order::new(BidOrAsk::Bid, 100.0);
+        let buy_limit_order_a = Order::new(109, BidOrAsk::Bid, 100.0);
+        let buy_limit_order_b = Order::new(110, BidOrAsk::Bid, 100.0);
         limit.add_order(buy_limit_order_a);
         limit.add_order(buy_limit_order_b);
 
-        let mut market_sell_order = Order::new(BidOrAsk::Ask, 199.0);
+        let mut market_sell_order = Order::new(111, BidOrAsk::Ask, 199.0);
         limit.fill_order(&mut market_sell_order);
 
         assert_eq!(market_sell_order.is_filled(), true);
@@ -197,10 +217,10 @@ pub mod tests {
     fn limit_order_single_fill() {
         let price = dec!(10000);
         let mut limit = Limit::new(price);
-        let buy_limit_order = Order::new(BidOrAsk::Bid, 100.0);
+        let buy_limit_order = Order::new(107, BidOrAsk::Bid, 100.0);
         limit.add_order(buy_limit_order);
 
-        let mut market_sell_order = Order::new(BidOrAsk::Ask, 99.0);
+        let mut market_sell_order = Order::new(108, BidOrAsk::Ask, 99.0);
         limit.fill_order(&mut market_sell_order);
 
         assert_eq!(market_sell_order.is_filled(), true);
