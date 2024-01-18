@@ -33,11 +33,21 @@ let mut engine = MatchingEngine::new();
 let pair = TradingPair::new("BTC".to_string(), "USD".to_string());
 
 // Place a limit order using the matching engine
-let buy_order_from_ayush = Order::new(BidOrAsk::Bid, 7.5);
-let sell_order_from_ayush = Order::new(BidOrAsk::Ask, 5.0);
+let buy_order_from_ayush = Order::new(1, BidOrAsk::Bid, 7.5);
+let sell_order_from_ayush = Order::new(3, BidOrAsk::Ask, 5.0);
 
 engine.place_limit_order(pair.clone(), dec!(10.0), buy_order_from_ayush).unwrap();
 engine.place_limit_order(pair.clone(), dec!(11.5), sell_order_from_ayush).unwrap();
+
+// Delete a limit order using the matching engine
+engine.delete_limit_order(pair.clone(), dec!(10.0), 1).unwrap();
+
+// Market order functionality
+let mut market_buy_order = &mut Order::new(5, BidOrAsk::Bid, 1.0);
+engine.place_market_order(pair.clone(), market_buy_order);
+
+let mut market_sell_order = &mut Order::new(6, BidOrAsk::Ask, 2.0);
+engine.place_market_order(pair.clone(), market_sell_order);
 ```
 
 ## Code Structure
