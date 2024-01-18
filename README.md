@@ -54,3 +54,6 @@ engine.place_market_order(pair.clone(), market_sell_order);
 - `engine.rs`: Defines the `MatchingEngine` and `TradingPair` structures. The `MatchingEngine` handles the logic for matching buy and sell orders, while `TradingPair` represents a pair of currencies in a trade.
 - `orderbook.rs`: Contains the `Orderbook` structure and `BidOrAsk` enums. The `Orderbook` manages lists of bids and asks, and includes methods for order processing.
 - `main.rs`: The main entry point of the application. It demonstrates initializing the matching engine, setting up an order book, and creating a BTC/USD trading pair.
+
+## Design Doc
+- System Design Docs are available at [`here`](https://docs.google.com/document/d/17LJZHb1Ecp5fjue-m3O8QHV1viimdqRJ93BEmm-8iTo/edit?usp=sharing) 
