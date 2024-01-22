@@ -1,10 +1,10 @@
-#![allow(dead_code)]
+#![allow(dead_code, unused_imports)]
 
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub enum BidOrAsk {
     Bid,
     Ask,
@@ -92,6 +92,24 @@ impl Orderbook {
 
         is_deleted_from_bids || is_deleted_from_asks
     }
+
+    pub fn get_volume(&mut self, price: Decimal, order_type:BidOrAsk) -> f64 {
+
+        match order_type {
+            BidOrAsk::Bid => match self.bids.get_mut(&price) {
+                Some(limit) => return limit.total_volume(),
+                None => {
+                    return 0.0;
+                }
+            },
+            BidOrAsk::Ask => match self.asks.get_mut(&price) {
+                Some(limit) => return limit.total_volume(),
+                None => {
+                    return 0.0;
+                }
+            },
+        }
+    }
 }
 
 
@@ -141,7 +159,7 @@ impl Limit {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct Order {
     id: u64,
     size: f64,

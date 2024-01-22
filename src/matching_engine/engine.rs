@@ -1,6 +1,6 @@
 use rust_decimal::Decimal;
 
-use super::orderbook::{Order, Orderbook};
+use super::orderbook::{Order, Orderbook, BidOrAsk};
 use std::collections::HashMap;
 
 // BTCUSD
@@ -100,6 +100,27 @@ impl MatchingEngine {
                 orderbook.fill_market_order(order);
 
                 println!("placed market order at price level");
+
+                Ok(())
+            }
+            None => Err(format!(
+                "the orderbook for the given trading pair ({}) does not exist",
+                pair.to_string()
+            )),
+        }
+    }
+
+    pub fn get_volume(
+        &mut self,
+        pair: TradingPair,
+        price: Decimal,
+        order_type:BidOrAsk,
+    ) -> Result<(), String> {
+        match self.orderbooks.get_mut(&pair) {
+            Some(orderbook) => {
+                let volume = orderbook.get_volume(price, order_type);
+
+                println!("Volume at price level {} is {:?} \n", price, volume);
 
                 Ok(())
             }

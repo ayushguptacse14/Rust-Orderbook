@@ -7,11 +7,6 @@ fn main() {
     // Initialize the orderbook and matching engine
     let mut engine = MatchingEngine::new();
 
-
-    // Print current state of the orderbook
-    // println!("Orderbook before matching engine:\n{:?} \n", orderbook);
-
-
     // Create a trading pair
     let pair = TradingPair::new("BTC".to_string(), "USD".to_string());
 
@@ -21,34 +16,55 @@ fn main() {
     //Show state of Orderbook
     engine.show_orderbook_state();
 
-    // Place a limit order using the matching engine
+    // Create orders
     let buy_order_from_ayush = Order::new(1, BidOrAsk::Bid, 7.5);
     let buy_order_from_sameep = Order::new(2, BidOrAsk::Bid, 20.5);
     let sell_order_from_ayush = Order::new(3, BidOrAsk::Ask, 5.0);
     let sell_order_from_sameep = Order::new(4, BidOrAsk::Bid, 22.5);
 
-    engine.place_limit_order(pair.clone(), dec!(10.0), buy_order_from_ayush).unwrap();
-    engine.place_limit_order(pair.clone(), dec!(10.5), buy_order_from_sameep).unwrap();
-    engine.place_limit_order(pair.clone(), dec!(11.5), sell_order_from_ayush).unwrap();
-    engine.place_limit_order(pair.clone(), dec!(12.0), sell_order_from_sameep).unwrap();
+    // Place limit orders with error handling
+    let orders = [
+        (dec!(10.0), buy_order_from_ayush),
+        (dec!(10.5), buy_order_from_sameep),
+        (dec!(11.5), sell_order_from_ayush),
+        (dec!(12.0), sell_order_from_sameep),
+    ];
+
+    for (price, order) in orders.iter() {
+        match engine.place_limit_order(pair.clone(), *price, order.clone()) {
+            Ok(_) => println!("Order placed at price: {}", price),
+            Err(e) => eprintln!("Error placing order at price {}: {}", price, e),
+        }
+    }
 
     //Show state of Orderbook
     engine.show_orderbook_state();
 
-     // Delete a limit order using the matching engine
-    engine.delete_limit_order(pair.clone(), dec!(10.0), 1).unwrap();
+    // Delete a limit order with error handling
+    match engine.delete_limit_order(pair.clone(), dec!(10.0), 1) {
+        Ok(_) => println!("Order deleted successfully"),
+        Err(e) => eprintln!("Error deleting order: {}", e),
+    }
 
     //Show state of Orderbook
     engine.show_orderbook_state();
 
-    // Demonstrate market order functionality
-    let mut market_buy_order = &mut Order::new(5, BidOrAsk::Bid, 1.0);
-    engine.place_market_order(pair.clone(), market_buy_order);
+    // Get volume
+    if let Err(e) = engine.get_volume(pair.clone(), dec!(12.0), BidOrAsk::Bid) {
+        eprintln!("Error getting volume: {}", e);
+    }
 
-    let mut market_sell_order = &mut Order::new(6, BidOrAsk::Ask, 2.0);
-    engine.place_market_order(pair.clone(), market_sell_order);
+    // Demonstrate market order functionality with error handling
+    let market_buy_order = &mut Order::new(5, BidOrAsk::Bid, 1.0);
+    if let Err(e) = engine.place_market_order(pair.clone(), market_buy_order) {
+        eprintln!("Error placing market buy order: {}", e);
+    }
+
+    let market_sell_order = &mut Order::new(6, BidOrAsk::Ask, 2.0);
+    if let Err(e) = engine.place_market_order(pair.clone(), market_sell_order) {
+        eprintln!("Error placing market sell order: {}", e);
+    }
 
     //Show state of Orderbook
     engine.show_orderbook_state();
-
 }
